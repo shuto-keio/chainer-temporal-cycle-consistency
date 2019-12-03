@@ -1,0 +1,25 @@
+opt: "Adam"
+lr: 0.0001
+epoch: 10000
+out_dir: "3D"
+name: "3D"
+img_size: [224, 224]
+softmax_tmp: 0.1
+conv_type: "3D"
+brightness: True
+brightness_max_delta: 32
+contrast: True
+contrast_max: 1.5
+contrast_min: 0.5
+random_flip: True
+fc_dropout_rate: 0.1
+weight_decay_rate: 0.00001
+alignment: "classification"
+variance_lambda: 0.001
+dataset: tennis_serve
+max_img_seq: max
+batchsize: 2
+
+tennis_serve:
+  train_size: 115
+  test_size: 69
