@@ -1,11 +1,9 @@
 opt: "Adam"
 lr: 0.0001
-epoch: 10000
-out_dir: "3D"
-name: "3D"
+epoch: 50000
 img_size: [224, 224]
 softmax_tmp: 0.1
-conv_type: "3D"
+conv_type: "k"
 brightness: True
 brightness_max_delta: 32
 contrast: True
@@ -14,12 +12,27 @@ contrast_min: 0.5
 random_flip: True
 fc_dropout_rate: 0.1
 weight_decay_rate: 0.00001
-alignment: "classification"
+alignment: "regression"
 variance_lambda: 0.001
 dataset: tennis_serve
-max_img_seq: max
-batchsize: 2
+max_img_seq: 20
+batchsize: 4
+k: 2
 
+regression:
+  normalize_indices: True
+
+penn_action:
+  stride: 1
 tennis_serve:
   train_size: 115
   test_size: 69
+
+tennismix:
+  sequence_len: 20
+
+pouring:
+  stride: 1
+
+multiview_pouring:
+  stride: 1

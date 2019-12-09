@@ -57,5 +57,6 @@ class load_dataset(chainer.dataset.DatasetMixin):
                 -CONFIG.brightness_max_delta, CONFIG.brightness_max_delta)
             tmp = [i*param_contrast + param_brightness for i in img_sequence]
             img_sequence = tmp
+        img_sequence = [i.transpose(2, 0, 1) for i in img_sequence]
 
         return img_sequence

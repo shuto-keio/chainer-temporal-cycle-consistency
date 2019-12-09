@@ -8,7 +8,7 @@ from chainer.training import Trainer
 from chainer.training import extensions
 from chainer.optimizer_hooks import WeightDecay
 
-from datasets import load_pen_action, load_pouring
+from datasets import load_penn_action, load_pouring, load_tennismix, load_multiview_pouring
 from load_dataset import load_dataset
 from evaluator import evaluator
 from config import CONFIG
@@ -18,15 +18,26 @@ shutil.copyfile("train.yaml", OPTION.output_dir + "train.yaml")
 
 
 def main():
-    # chainer.config.autotune = True
+    chainer.config.autotune = True
+    chainer.config.cudnn_fast_batch_normalization = True
+    print(CONFIG.dataset)
+
     if CONFIG.dataset == "tennis_serve":
-        dataset = load_pen_action(
-            dataset_dir=OPTION.dataset_dir, dict_ok=False)
-        dataset_train = dataset[:CONFIG.tennis_serve.train_size]
-        dataset_test = dataset[CONFIG.tennis_serve.train_size:]
+        dataset = load_penn_action(
+            dataset_dir=OPTION.dataset_dir, stride=CONFIG.penn_action.stride, dict_ok=False)
+        dataset_train = dataset[:115]
+        dataset_test = dataset[115:]
     elif CONFIG.dataset == "pouring":
         dataset_train, dataset_test = load_pouring(
-            dataset_dir=OPTION.dataset_dir, dict_ok=False)
+            dataset_dir=OPTION.dataset_dir, stride=CONFIG.pouring.stride, dict_ok=False)
+    elif CONFIG.dataset == "multiview_pouring":
+        dataset_train, dataset_test = load_multiview_pouring(
+            dataset_dir=OPTION.dataset_dir, stride=CONFIG.multiview_pouring.stride, dict_ok=False)
+    elif CONFIG.dataset == "tennismix":
+        dataset = load_tennismix(dataset_dir=OPTION.dataset_dir,
+                                 sequence_len=20, dataset_name="tennis_serve", dict_ok=False)
+        dataset_train = dataset[:11]
+        dataset_test = dataset[27:30]
     else:
         print("dataset error.")
         exit()
@@ -40,9 +51,9 @@ def main():
         dataset_train, batch_size=CONFIG.batchsize, n_processes=6, shared_mem=10**9)
 
     test_iter = MultiprocessIterator(
-        dataset_test, batch_size=CONFIG.batchsize, n_processes=6, shared_mem=10**9, repeat=False, shuffle=None)
+        dataset_test, batch_size=1, n_processes=6, shared_mem=10**9, repeat=False, shuffle=None)
 
-    model = tcc(use_bn=True, k=1)
+    model = tcc(use_bn=True, k=CONFIG.k)
     device = chainer.get_device(OPTION.device)
     device.use()
     model.to_device(device)
@@ -57,19 +68,25 @@ def main():
 
     trainer = Trainer(updater, (CONFIG.epoch, 'epoch'), out=OPTION.output_dir)
 
-    display_interval = (20, 'iteration')
-    plot_interval = (10, 'epoch')
-
-    trainer.extend(extensions.snapshot_object(
-        model, "{.updater.epoch}" + ".npz"), trigger=(100, "epoch"))
-    trainer.extend(extensions.LogReport(trigger=display_interval))
-    trainer.extend(extensions.PlotReport(
-        ["main/loss"], "epoch", file_name='loss.png'), trigger=plot_interval)
+    display_interval = (5, 'epoch')
+    plot_interval = (100, 'epoch')
     trainer.extend(extensions.ProgressBar(update_interval=5))
+    trainer.extend(extensions.LogReport(
+        trigger=display_interval, filename='log.txt'))
     trainer.extend(extensions.PrintReport(
         ['epoch', 'iteration', "main/loss", 'elapsed_time']), trigger=display_interval)
 
-    # trainer.extend(evaluator(test_iter, model, device, OPTION=OPTION), trigger=(100, "epoch"))
+    trainer.extend(extensions.PlotReport(
+        ["main/loss"], "epoch", file_name='loss.png'), trigger=plot_interval)
+
+    trainer.extend(evaluator(test_iter, model, device,
+                             epoch=plot_interval[0], out=OPTION.output_dir), trigger=plot_interval)
+    trainer.extend(extensions.PlotReport(
+        ["test/tau"], "epoch", file_name='tau.png'), trigger=plot_interval)
+
+    trainer.extend(extensions.snapshot_object(
+        model, "{.updater.epoch}" + ".npz"), trigger=plot_interval)
+
     trainer.run()
 
 
@@ -80,13 +97,6 @@ def make_optimizer(model):
         optimizer = chainer.optimizers.SGD(lr=CONFIG.opt)
     elif CONFIG.opt == "Momentum":
         optimizer = chainer.optimizers.MomentumSGD(lr=CONFIG.opt)
-
-    # import sys
-    # sys.path.append('/home/shuto/synology/git/chainer_profutil')
-    # from chainer_profutil import create_marked_profile_optimizer
-    # optimizer = create_marked_profile_optimizer(
-    #     chainer.optimizers.Adam(alpha=CONFIG.lr), sync=True, sync_level=2)
-
     optimizer.setup(model)
 
     return optimizer
