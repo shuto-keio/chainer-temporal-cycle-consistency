@@ -20,9 +20,9 @@ class tcc_updater(chainer.training.updaters.StandardUpdater):
 
         batch = train_iter.next()
 
-        train_batch = converter_batch(batch, self.device)
+        train_batch = converter(batch, self.device)
+
         train_batch = optimizer.target(train_batch)
-        # train_batch = train_batch.reshape(batch_size, CONFIG.max_img_seq, 128)
 
         loss = 0
         num = 0
@@ -41,10 +41,4 @@ class tcc_updater(chainer.training.updaters.StandardUpdater):
 
 def converter(batch, device):
     batch = np.array(batch, dtype=np.float32)
-    batch = batch.transpose((0, 3, 1, 2))
-    return device.send(batch)
-
-
-def converter_batch(batch, device):
-    batch = np.array(batch, dtype=np.float32)  # batchsize,time,ch,w,h
     return device.send(batch)

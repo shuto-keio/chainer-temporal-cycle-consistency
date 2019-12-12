@@ -12,9 +12,9 @@ contrast_min: 0.5
 random_flip: True
 fc_dropout_rate: 0.1
 weight_decay_rate: 0.00001
-alignment: "regression"
+alignment: "classification"
 variance_lambda: 0.001
-dataset: tennis_serve
+dataset: multiview_pouring
 max_img_seq: 20
 batchsize: 4
 k: 2

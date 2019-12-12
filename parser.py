@@ -24,7 +24,7 @@ if name != "":
 
 if args.computer == 0:
     OPTION.dataset_dir = "/media/shuto/HDD-3TB/dataset/"
-    OPTION.output_dir = "/home/shuto/synology3/output/tcc/" + CONFIG.dataset + "/" + \
+    OPTION.output_dir = "/home/shuto/synology/output/tcc/" + CONFIG.dataset + "/" + \
         time + name + "/"
 elif args.computer == 1:
     OPTION.dataset_dir = "/home/ubuntu/local/dataset/"

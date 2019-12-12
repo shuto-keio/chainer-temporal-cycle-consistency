@@ -51,14 +51,6 @@ class evaluator(extensions.Evaluator):
         plt.close()
         return summary.compute_mean()
 
-
-# def converter(batch, device):
-#     batch = np.array(batch, dtype=np.float32)
-#     batch = batch.transpose((0, 3, 1, 2))
-#     return device.send(batch)
-
-
-def converter_batch(batch, device):
-    batch = np.array(batch, dtype=np.float32)  # batchsize,time,w,h,ch
-    # batchsize,time,w,h,ch >> bathsize,time,ch,w,h
+def converter(batch, device):
+    batch = np.array(batch, dtype=np.float32)
     return device.send(batch)

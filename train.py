@@ -3,7 +3,7 @@ from updater import tcc_updater
 from model import tcc
 import chainer
 # import chainerx
-from chainer.iterators import MultiprocessIterator
+from chainer.iterators import MultiprocessIterator, MultithreadIterator
 from chainer.training import Trainer
 from chainer.training import extensions
 from chainer.optimizer_hooks import WeightDecay
@@ -43,15 +43,14 @@ def main():
         exit()
 
     dataset_train = load_dataset(dataset_train, augment=None,
-                                 img_size=CONFIG.img_size)
+                                 img_size=CONFIG.img_size, k=CONFIG.k)
     dataset_test = load_dataset(dataset_test, augment=None,
-                                img_size=CONFIG.img_size)
-
+                                img_size=CONFIG.img_size, k=CONFIG.k)
     train_iter = MultiprocessIterator(
-        dataset_train, batch_size=CONFIG.batchsize, n_processes=6, shared_mem=10**9)
+        dataset_train, batch_size=CONFIG.batchsize, n_processes=6)
 
     test_iter = MultiprocessIterator(
-        dataset_test, batch_size=1, n_processes=6, shared_mem=10**9, repeat=False, shuffle=None)
+        dataset_test, batch_size=1, n_processes=6, repeat=False, shuffle=None)
 
     model = tcc(use_bn=True, k=CONFIG.k)
     device = chainer.get_device(OPTION.device)

@@ -99,7 +99,7 @@ class Embedder(chainer.Chain):
             if CONFIG.conv_type == "2D":
                 self.conv5_1 = L.Convolution2D(
                     512, 512, ksize=3, stride=1, pad=1)
-            if CONFIG.conv_type in ["3D", "k"]:
+            elif CONFIG.conv_type in ["3D", "k"]:
                 self.conv5_1 = L.Convolution3D(
                     512, 512, ksize=3, stride=1, pad=1)
 
@@ -147,6 +147,7 @@ class Embedder(chainer.Chain):
             # batch_size, sequence_length, ch, w, h >> batch_size*sequence_len, ch, w, h
             h = h.reshape(batch_size*sequence_len, ch, w, h_)
             h = F.max_pooling_2d(h, ksize=h.shape[-1], stride=1, pad=0)
+
         elif CONFIG.conv_type == "2D":
             h = F.max_pooling_2d(h, ksize=h.shape[-1], stride=1, pad=0)
 
