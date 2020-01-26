@@ -1,6 +1,6 @@
 from sklearn.manifold import TSNE
 import numpy as np
-
+import ipdb
 from itertools import permutations
 import scipy
 
@@ -8,6 +8,7 @@ import scipy
 def eval_kendall_tau(y):
     taus = []
     for s, t in permutations(range(len(y)), 2):
+
         u = np.array(y[s])
         v = np.array(y[t])
         dists = scipy.spatial.distance.cdist(u, v, 'sqeuclidean')
@@ -21,6 +22,7 @@ def eval_kendall_tau(y):
 
 
 def eval_tsne(y, num):
+
     label = []
     y_flat = []
     for i, y_tmp in enumerate(y[:num]):
@@ -28,7 +30,6 @@ def eval_tsne(y, num):
         for j in range(len(y_tmp)):
             y_flat.append(y_tmp[j, :])
         label += [i for i in range(len(y_tmp))]
-
     model = TSNE(n_components=2, init='random', random_state=0, perplexity=10)
     Y = model.fit_transform(y_flat)
 

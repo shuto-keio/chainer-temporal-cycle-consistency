@@ -152,7 +152,7 @@ class Embedder(chainer.Chain):
             h = F.max_pooling_2d(h, ksize=h.shape[-1], stride=1, pad=0)
 
         elif CONFIG.conv_type == "k":
-            # batch_size, ch, sequence_length, w, h  >> batch_size, sequence_length, ch, w, h
+            # batch_size, ch, sequence_length, w, h
             h = F.max_pooling_3d(
                 h, ksize=(h.shape[2], h.shape[3], h.shape[4]), stride=1, pad=0)
 
@@ -162,8 +162,7 @@ class Embedder(chainer.Chain):
             h = F.dropout(h, dropout_ratio)
         h = self.fc2(h)
         h = F.relu(h)
-        if dropout_ratio > 0:
-            h = F.dropout(h, dropout_ratio)
+
         h = self.fc3(h)
 
         h = h.reshape(batch_size, -1, 128)
@@ -172,8 +171,9 @@ class Embedder(chainer.Chain):
 
 def cycle_back_classification(batch1, batch2):
     loss = 0
-    u = batch1
-    v = batch2
+    u, _ = batch1
+    v, _ = batch2
+
     for i in range(len(u)):
         t = cupy.array((i,), dtype=int)
 
@@ -194,8 +194,8 @@ def cycle_back_classification(batch1, batch2):
 
 
 def cycle_back_classification2(batch1, batch2):
-    u = batch1
-    v = batch2
+    u, u_indices = batch1
+    v, v_indices = batch2
 
     len_u = len(u)
     len_v = len(v)
@@ -221,12 +221,13 @@ def cycle_back_classification2(batch1, batch2):
     return loss*len_u
 
 
+
 def cycle_back_regression(batch1, batch2):
     loss = 0
 
     for i in range(len(batch1)):
-        u = batch1
-        v = batch2
+        u, _ = batch1
+        v, _ = batch2
         t = i
 
         u_i = batch1[i]
@@ -249,13 +250,13 @@ def cycle_back_regression(batch1, batch2):
 
 def cycle_back_regression2(batch1, batch2):
     var_lambda = CONFIG.variance_lambda
-    u = batch1
-    v = batch2
+    u, u_indices = batch1
+    v, v_indices = batch2
 
     len_u = len(u)
     len_v = len(v)
 
-    t = cupy.arange(len(u))
+    t = u_indices
     if CONFIG.regression.normalize_indices:
         t = t/len(u)
 

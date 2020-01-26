@@ -59,9 +59,9 @@ def main():
 
     optimizer = make_optimizer(model)
 
-    if CONFIG.weight_decay_rate != 0:
-        for param in model.params():
-            param.update_rule.add_hook(WeightDecay(CONFIG.weight_decay_rate))
+    # if CONFIG.weight_decay_rate != 0:
+    #     for param in model.params():
+    #         param.update_rule.add_hook(WeightDecay(CONFIG.weight_decay_rate))
 
     updater = tcc_updater({"main": train_iter}, optimizer, device)
 
@@ -73,10 +73,10 @@ def main():
     trainer.extend(extensions.LogReport(
         trigger=display_interval, filename='log.txt'))
     trainer.extend(extensions.PrintReport(
-        ['epoch', 'iteration', "main/loss", 'elapsed_time']), trigger=display_interval)
+        ['epoch', 'iteration', "main/loss", "test/loss", 'elapsed_time']), trigger=display_interval)
 
     trainer.extend(extensions.PlotReport(
-        ["main/loss"], "epoch", file_name='loss.png'), trigger=plot_interval)
+        ["main/loss", "test/loss"], "epoch", file_name='loss.png'), trigger=plot_interval)
 
     trainer.extend(evaluator(test_iter, model, device,
                              epoch=plot_interval[0], out=OPTION.output_dir), trigger=plot_interval)

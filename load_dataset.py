@@ -21,6 +21,7 @@ class load_dataset(chainer.dataset.DatasetMixin):
         img_sequence = []
         if CONFIG.max_img_seq == "max":
             paths = self.img_paths[i]
+            indices = list(range(len(paths)))
         elif isinstance(CONFIG.max_img_seq, int):
             paths_all = self.img_paths[i]
             data_len = len(paths_all) - self.k + 1
@@ -38,9 +39,10 @@ class load_dataset(chainer.dataset.DatasetMixin):
         img_sequence = self.img_augment(img_sequence)
 
         img_sequence = [((i/255) - 0.5)/0.5 for i in img_sequence]
-        img_sequence = [i.transpose(2,0,1) for i in img_sequence]
+        img_sequence = [i.transpose(2, 0, 1).astype("float32")
+                        for i in img_sequence]
 
-        return img_sequence
+        return img_sequence, indices
 
     def img_open(self, path):
         image = cv2.imread(path)
@@ -64,6 +66,5 @@ class load_dataset(chainer.dataset.DatasetMixin):
                 -CONFIG.brightness_max_delta, CONFIG.brightness_max_delta)
             tmp = [i*param_contrast + param_brightness for i in img_sequence]
             img_sequence = tmp
-        # img_sequence = [i.transpose(2, 0, 1) for i in img_sequence]
 
         return img_sequence
