@@ -2,7 +2,7 @@ import glob
 import os
 import pandas as pd
 import numpy as np
-import ipdb
+from config import CONFIG
 
 
 def load_penn_action(dataset_dir, stride, dict_ok=True):
@@ -21,12 +21,12 @@ def load_penn_action(dataset_dir, stride, dict_ok=True):
     # 'strum_guitar',
     # 'tennis_forehand',
     # 'tennis_serve'index=2141~2326, max_len=100
-
-    start = 2141
-    end = 2326
+    if CONFIG.dataset == "tennis_serve":
+        start = 2141
+        end = 2326
     # max_len = 100
 
-    img_paths = load_img_path(start, end, dataset_dir+"public/penn_action/")
+    img_paths = load_img_path(start, end, dataset_dir + "/penn_action/")
     img_paths = stride_dataset(img_paths, stride)
 
     if dict_ok is True:
@@ -37,7 +37,7 @@ def load_penn_action(dataset_dir, stride, dict_ok=True):
 
 def load_img_path(start, end, dataset_dir):
     img_paths = {}
-    for i in range(start, end+1):
+    for i in range(start, end + 1):
         tmp = glob.glob(os.path.join(
             dataset_dir, "frames", "%04d" % i, "*.jpg"))
         tmp.sort()
@@ -50,14 +50,14 @@ def load_pouring(dataset_dir, stride, dict_ok=True):
     img_train_paths = {}
     for i in [2, 3, 5, 6, 8, 10, 11, 13, 14, 15, 17]:
         tmp = glob.glob(
-            dataset_dir + "public/pouring/frames/train/pouring_" + "%03d" % i + "*.jpg")
+            dataset_dir + "pouring/frames/train/pouring_" + "%03d" % i + "*.jpg")
         tmp.sort()
         img_train_paths["%03d" % i] = tmp
 
     img_test_paths = {}
     for i in [1, 4, 7, 9, 12, 16]:
         tmp = glob.glob(
-            dataset_dir + "public/pouring/frames/test/pouring_" + "%03d" % i + "*.jpg")
+            dataset_dir + "pouring/frames/test/pouring_" + "%03d" % i + "*.jpg")
         tmp.sort()
         img_test_paths["%03d" % i] = tmp
 
@@ -75,7 +75,7 @@ def load_multiview_pouring(dataset_dir, stride, dict_ok=True):
 
     img_train_paths = {}
     tmp = glob.glob(
-        dataset_dir + "public/multiview-pouring/frames/train/*" + "real" + "*")
+        dataset_dir + "multiview-pouring/frames/train/*" + "real" + "*")
     tmp.sort()
 #    for i in tmp:
     for i in range(pouring["train"]):
@@ -85,7 +85,7 @@ def load_multiview_pouring(dataset_dir, stride, dict_ok=True):
 
     img_test_paths = {}
     tmp = glob.glob(
-        dataset_dir + "public/multiview-pouring/frames/test/*" + "real" + "*")
+        dataset_dir + "multiview-pouring/frames/test/*" + "real" + "*")
 #    for i in tmp:
     for i in range(pouring["test"]):
         tmp2 = glob.glob(tmp[i] + "/*.jpg")
@@ -135,14 +135,14 @@ def load_tennismix(dataset_dir, sequence_len, dataset_name="tennis_serve", dict_
         img_serve_paths = []
         for i in range(len(shot_csv_f)):
             if serve_player[i] == 0:
-                shot_frame_tmp = shot_csv_f[i][0]-1
-                index_min = shot_frame_tmp - sequence_len//2 + noise_index[i]
-                index_max = shot_frame_tmp + sequence_len//2 + noise_index[i]
+                shot_frame_tmp = shot_csv_f[i][0] - 1
+                index_min = shot_frame_tmp - sequence_len // 2 + noise_index[i]
+                index_max = shot_frame_tmp + sequence_len // 2 + noise_index[i]
                 img_serve_paths.append(img_paths_f[i][index_min:index_max])
             elif serve_player[i] == 1:
-                shot_frame_tmp = shot_csv_l[i][0]-1
-                index_min = shot_frame_tmp - sequence_len//2 + noise_index[i]
-                index_max = shot_frame_tmp + sequence_len//2 + noise_index[i]
+                shot_frame_tmp = shot_csv_l[i][0] - 1
+                index_min = shot_frame_tmp - sequence_len // 2 + noise_index[i]
+                index_max = shot_frame_tmp + sequence_len // 2 + noise_index[i]
                 img_serve_paths.append(img_paths_l[i][index_min:index_max])
     return img_serve_paths
 

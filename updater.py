@@ -1,8 +1,5 @@
-import numpy as np
 import chainer
-import chainer.functions as F
-from model import cycle_back_regression2, cycle_back_classification2, cycle_back_regression, cycle_back_classification
-import ipdb
+from model import cycle_back_regression_fast, cycle_back_classification_fast, cycle_back_regression, cycle_back_classification
 from config import CONFIG
 from chainer.dataset import concat_examples
 
@@ -10,9 +7,9 @@ from chainer.dataset import concat_examples
 class tcc_updater(chainer.training.updaters.StandardUpdater):
     def __init__(self, iterater, optimizer, device):
         if CONFIG.alignment == "classification":
-            self.alignment = cycle_back_classification2
+            self.alignment = cycle_back_classification_fast
         elif CONFIG.alignment == "regression":
-            self.alignment = cycle_back_regression2
+            self.alignment = cycle_back_regression_fast
 
         self.converter = concat_examples
         super().__init__(iterater, optimizer, device=device)
@@ -39,9 +36,4 @@ class tcc_updater(chainer.training.updaters.StandardUpdater):
         optimizer.target.cleargrads()  # Clear the parameter gradients
         loss.backward()  # Backprop
         optimizer.update()  # Update the parameters
-        # loss.unchain_backward()  # Truncate the graph
         chainer.reporter.report({"loss": loss}, optimizer.target)
-
-    # def converter(batch, device):
-    #     batch = np.array(batch, dtype=np.float32)
-    #     return device.send(batch)

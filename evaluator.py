@@ -2,7 +2,7 @@ from chainer.training import extensions
 from chainer import reporter as reporter_module
 import cupy
 import chainer
-from model import cycle_back_regression2, cycle_back_classification2, cycle_back_regression, cycle_back_classification
+from model import cycle_back_regression_fast, cycle_back_classification_fast, cycle_back_regression, cycle_back_classification
 from tools import eval_kendall_tau, eval_tsne
 import numpy as np
 import matplotlib.pyplot as plt
@@ -18,9 +18,9 @@ class evaluator(extensions.Evaluator):
         self.count = 1
         self.out = out
         if CONFIG.alignment == "classification":
-            self.alignment = cycle_back_classification2
+            self.alignment = cycle_back_classification_fast
         elif CONFIG.alignment == "regression":
-            self.alignment = cycle_back_regression2
+            self.alignment = cycle_back_regression_fast
 
         super().__init__(iterator, model, device)
         self.device = device

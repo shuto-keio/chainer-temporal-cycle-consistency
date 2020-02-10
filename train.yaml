@@ -1,6 +1,8 @@
+dataset_path: "./dataset/"
+output_path: "./output/"
 opt: "Adam"
 lr: 0.0001
-epoch: 50000
+iteration: 15000
 img_size: [224, 224]
 softmax_tmp: 0.1
 conv_type: "k"
@@ -12,12 +14,14 @@ contrast_min: 0.5
 random_flip: True
 fc_dropout_rate: 0.1
 weight_decay_rate: 0.00001
-alignment: "classification"
+alignment: "regression"
 variance_lambda: 0.001
 dataset: multiview_pouring
 max_img_seq: 20
 batchsize: 4
 k: 2
+model: ResNet50
+
 
 regression:
   normalize_indices: True
@@ -27,9 +31,6 @@ penn_action:
 tennis_serve:
   train_size: 115
   test_size: 69
-
-tennismix:
-  sequence_len: 20
 
 pouring:
   stride: 1
